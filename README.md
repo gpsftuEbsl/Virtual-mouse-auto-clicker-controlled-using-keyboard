@@ -46,4 +46,47 @@
 
 ---
 
-這段 README 內容介紹了你的專案，包括功能、使用方式和免責聲明。可以根據需要進行修改或補充其他訊息。
+### README
+
+# Keyboard Simulation and Command Recording Tool
+
+This is a tool designed for recording and executing keyboard key presses. Users can record custom key presses and release timings, then save them as command files. These command files can later be executed to simulate the original keyboard behavior. This tool is developed for Windows systems and written in C++ using Windows API to simulate mouse and keyboard operations.
+
+### Features
+
+1. **Recording Mode**:
+   - In this mode, the program records key press and release timestamps and saves them into a file.
+2. **Manual Operation Mode**:
+   - Users can manually operate the keyboard and visually observe the current key states.
+3. **Execute Command Mode**:
+   - Users can select a saved command file and execute it, simulating the keyboard behavior.
+
+### How to Use
+
+1. After starting the program, choose an operation mode:
+   - **Recording Mode**: Record keyboard commands and save them as a file.
+   - **Manual Operation Mode**: Manually operate the keyboard and view the key states.
+   - **Execute Command Mode**: Select a saved command file and execute it.
+
+2. Follow the prompts to perform the selected operation, and the program will simulate the key press and release actions based on the timestamps.
+
+3. In the execution mode, commands are executed with precision based on the timestamps, simulating key presses and releases.
+
+### Compilation and Running
+
+1. Open a C++ development environment and save the source code in a `.cpp` file.
+2. Compile and run the program.
+
+### System Requirements
+
+- Windows 10 or later
+- A C++11 or newer compatible compiler (e.g., Visual Studio)
+
+### Disclaimer
+
+This project is intended for academic and personal learning purposes only. The author assumes no liability for any loss, damage, or legal issues that may arise from using this program. Please comply with local laws and regulations, and ensure that you do not infringe on others' rights while using this tool.
+
+### License
+
+Please refer to the **LICENSE** file for the terms of use for this program.
+
