@@ -1,5 +1,4 @@
 # Virtual-mouse-auto-clicker-controlled-using-keyboard
-以下是為你的專案撰寫的 **README** 內容和免責聲明：
 
 ### README
 
