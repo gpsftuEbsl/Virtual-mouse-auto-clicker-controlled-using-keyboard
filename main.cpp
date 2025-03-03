@@ -10,14 +10,30 @@ using namespace std;
 
 // 定義 Key 類別
 class Key {
-public:
-    char keyCode;       // 按鍵代碼（例如 'W', 'A', 'S', 'D', ' '）
-    int x, y;           // 按鍵的螢幕座標
-    bool pressed;       // 是否按下
-    bool newState;      // 是否是新狀態
+    private:
+        static int num; //計算總共有幾個key
+    public:
+        char keyCode;       // 按鍵代碼（例如 'W', 'A', 'S', 'D', ' '）
+        int x, y;           // 按鍵的螢幕座標
+        bool pressed;       // 是否按下
+        bool newState;      // 是否是新狀態
 
-    Key(char code, int xPos, int yPos)
-        : keyCode(code), x(xPos), y(yPos), pressed(false), newState(false) {}
+        Key(char code, int xPos, int yPos): keyCode(code), x(xPos), y(yPos), pressed(false), newState(false) {
+            num++;
+        }
+
+        //拷貝建構元 引數必須為某物件的參照
+        Key(const Key& key) { 
+            keyCode = key.keyCode;
+            x = key.x;
+            y = key.y;
+            num++;
+        }
+
+        //用來存取private靜態資料成員num
+        static void showNum(void) {
+            cout << "目前共有" << Key::num << "個Key物件" << endl;
+        }
 };
 
 // 常數定義
@@ -34,14 +50,15 @@ const int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
 // 使用 std::vector 儲存 Key 物件
 vector<Key> keys = {
-    {'W', screenWidth * 15 / 64, screenHeight * 5 / 8},
-    {'S', screenWidth * 15 / 64, screenHeight * 7 / 8},
-    {'A', screenWidth * 11 / 64, screenHeight * 6 / 8},
-    {'D', screenWidth * 19 / 64, screenHeight * 6 / 8},
+    //{'W', screenWidth * 15 / 64, screenHeight * 5 / 8},
+    //{'S', screenWidth * 15 / 64, screenHeight * 7 / 8},
+    //{'A', screenWidth * 11 / 64, screenHeight * 6 / 8},
+    //{'D', screenWidth * 19 / 64, screenHeight * 6 / 8},
+    {'H', screenWidth * 32 / 64, screenHeight * 4 / 8},
     {VK_NUMPAD3, screenWidth * 53 / 64, screenHeight * 25 / 32},
     {VK_NUMPAD2, screenWidth * 11 / 16, screenHeight * 6 / 8},
     {VK_NUMPAD1, screenWidth * 10 / 16, screenHeight * 6 / 8},
-    {VK_NUMPAD6, screenWidth * 53 / 64, screenHeight * 9 / 16}
+    {VK_NUMPAD6, screenWidth * 53 / 64, screenHeight * 9 / 16},
 };
 
 // 畫出圓形標記與鍵盤字母
@@ -110,7 +127,7 @@ void release(int x, int y) {
     mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
 }
 
-// 錄製指令
+// 1.錄製指令
 void recordCommands() {
 
     vector<string> commands;
@@ -157,7 +174,37 @@ void recordCommands() {
     cout << "指令已儲存至 " << fileName << "\n";
 }
 
-// 執行已錄製的指令
+//2.手動操作
+void manualOperation() {
+    cout << "可手動操作有以下這些鍵..." << endl;
+    for (auto& key : keys) {
+        cout << key.keyCode << ' ';
+    }
+    cout << endl;
+    while (true) {
+        for (auto& key : keys) {
+            const bool isPressed = (GetAsyncKeyState(key.keyCode) & 0x8000);
+            if (isPressed && !key.pressed) {
+                key.pressed = true;
+                press(key.x, key.y); // 確認按下按鍵
+            }
+            else if (!isPressed && key.pressed) {
+                key.pressed = false;
+                release(key.x, key.y); // 確認釋放按鍵
+            }
+        }
+
+        drawKeys(keys); // 確認狀態顯示正確
+
+        if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) {
+            break;
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
+
+// 3.執行已錄製的指令
 void executeCommands() {
     // 列出可用指令檔案
     system("dir 指令_*.txt /b > file_list.txt");
@@ -236,11 +283,50 @@ void executeCommands() {
     }
 }
 
+//4.新增鍵盤
+void addKeyboard(void) {
+    char inputName;
+    string fraction, nStr; //fractionHeightAndWidth
+    int a = -1, b = -1, c = -1, d = -1; // *a/b *c/d 從字串中取得數字
+    cout << "請輸入要添加的鍵盤按鍵名稱、在螢幕中的高度、寬度 例如:(W)" << endl;
+    cin >> inputName; cin.get();
+    cout << "請輸入要添加的鍵盤按鍵在螢幕中的高度、寬度 例如:(15/64 5/8)" << endl;
+    getline(cin, fraction);
+    int strSize = fraction.size(), cnt = 0, head = 0;
+    for (int i = 0; i < strSize; i++) {
+        if (fraction[i] == '/' || fraction[i] == ' ') {
+            nStr = fraction.substr(head, cnt);
+            int n = stoi(nStr);
+            head = i + 1;
+            cnt = 0;
+            if (a == -1) {
+                a = n;
+            }
+            else if (b == -1) {
+                b = n;
+            }
+            else if (c == -1) {
+                c = n;
+            }
+        }
+        else {
+            cnt++;
+        }
+    }
+    nStr = fraction.substr(head, cnt); //額外處理最後的d
+    d = stoi(nStr);
+    Key userDefine(inputName, screenHeight * a / b, screenWidth * c / d);
+    keys.push_back(userDefine);
+    Key::showNum(); //用來計算Key物件總數
+    cout << "其中vector中有" << keys.size() << "個鍵" << endl;
+}
+
+int Key::num = 0; //定義一個用來記錄物件數量的靜態資料成員
 // 主程式，選擇模式並能退出程式
 int main() {
     while (true) {
         int mode = 0;
-        cout << "請選擇模式：\n1. 錄製模式\n2. 手動操作模式\n3. 執行已錄製指令模式\n0. 退出程式\n";
+        cout << "請選擇模式：\n1. 錄製模式\n2. 手動操作模式\n3. 執行已錄製指令模式\n4. 新增自訂義按鍵\n0. 退出程式\n";
         cin >> mode;
 
         switch (mode) {
@@ -248,28 +334,13 @@ int main() {
             recordCommands();
             break;
         case 2:
-            while (true) {
-                for (auto& key : keys) {
-                    const bool isPressed = (GetAsyncKeyState(key.keyCode) & 0x8000);
-                    if (isPressed && !key.pressed) {
-                        key.pressed = true;
-                    }
-                    else if (!isPressed && key.pressed) {
-                        key.pressed = false;
-                    }
-                }
-
-                drawKeys(keys);
-
-                if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) {
-                    break;
-                }
-
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            }
+            manualOperation();
             break;
         case 3:
             executeCommands();
+            break;
+        case 4:     
+            addKeyboard();
             break;
         case 0:
             cout << "退出程式...\n";
