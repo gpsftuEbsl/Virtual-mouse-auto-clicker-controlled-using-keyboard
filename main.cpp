@@ -64,6 +64,11 @@ vector<Key> keys = {
 // 畫出圓形標記與鍵盤字母
 void drawCircle(int x, int y, int radius, COLORREF color) {
     HDC hdc = GetDC(NULL);
+
+    // 設定要清除的區域（圓形的外接正方形）
+    RECT rect = {x - radius, y - radius, x + radius, y + radius};
+    FillRect(hdc, &rect, (HBRUSH)GetStockObject(WHITE_BRUSH)); // 清成白色背景
+
     HPEN hPen = CreatePen(PS_SOLID, 2, color);
     HBRUSH hBrush = CreateSolidBrush(color);
     HPEN oldPen = (HPEN)SelectObject(hdc, hPen);
@@ -71,14 +76,13 @@ void drawCircle(int x, int y, int radius, COLORREF color) {
 
     Ellipse(hdc, x - radius, y - radius, x + radius, y + radius);
 
-    // 還原原始畫筆與畫刷
     SelectObject(hdc, oldPen);
     SelectObject(hdc, oldBrush);
-
     DeleteObject(hPen);
     DeleteObject(hBrush);
     ReleaseDC(NULL, hdc);
 }
+
 
 void drawKeys(vector<Key> keys) {
     // 顯示對應的數字或字母
