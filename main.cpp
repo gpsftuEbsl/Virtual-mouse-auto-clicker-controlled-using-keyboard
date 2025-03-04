@@ -1,3 +1,4 @@
+
 #include <windows.h>
 #include <iostream>
 #include <vector>
@@ -10,30 +11,30 @@ using namespace std;
 
 // 定義 Key 類別
 class Key {
-    private:
-        static int num; //計算總共有幾個key
-    public:
-        char keyCode;       // 按鍵代碼（例如 'W', 'A', 'S', 'D', ' '）
-        int x, y;           // 按鍵的螢幕座標
-        bool pressed;       // 是否按下
-        bool newState;      // 是否是新狀態
+private:
+    static int num; //計算總共有幾個key
+public:
+    char keyCode;       // 按鍵代碼（例如 'W', 'A', 'S', 'D', ' '）
+    int x, y;           // 按鍵的螢幕座標
+    bool pressed;       // 是否按下
+    bool newState;      // 是否是新狀態
 
-        Key(char code, int xPos, int yPos): keyCode(code), x(xPos), y(yPos), pressed(false), newState(false) {
-            num++;
-        }
+    Key(char code, int xPos, int yPos) : keyCode(code), x(xPos), y(yPos), pressed(false), newState(false) {
+        num++;
+    }
 
-        //拷貝建構元 引數必須為某物件的參照
-        Key(const Key& key) { 
-            keyCode = key.keyCode;
-            x = key.x;
-            y = key.y;
-            num++;
-        }
+    //拷貝建構元 引數必須為某物件的參照
+    Key(const Key& key) {
+        keyCode = key.keyCode;
+        x = key.x;
+        y = key.y;
+        num++;
+    }
 
-        //用來存取private靜態資料成員num
-        static void showNum(void) {
-            cout << "目前共有" << Key::num << "個Key物件" << endl;
-        }
+    //用來存取private靜態資料成員num
+    static void showNum(void) {
+        cout << "目前共有" << Key::num << "個Key物件" << endl;
+    }
 };
 
 // 常數定義
@@ -64,11 +65,6 @@ vector<Key> keys = {
 // 畫出圓形標記與鍵盤字母
 void drawCircle(int x, int y, int radius, COLORREF color) {
     HDC hdc = GetDC(NULL);
-
-    // 設定要清除的區域（圓形的外接正方形）
-    RECT rect = {x - radius, y - radius, x + radius, y + radius};
-    FillRect(hdc, &rect, (HBRUSH)GetStockObject(WHITE_BRUSH)); // 清成白色背景
-
     HPEN hPen = CreatePen(PS_SOLID, 2, color);
     HBRUSH hBrush = CreateSolidBrush(color);
     HPEN oldPen = (HPEN)SelectObject(hdc, hPen);
@@ -76,8 +72,10 @@ void drawCircle(int x, int y, int radius, COLORREF color) {
 
     Ellipse(hdc, x - radius, y - radius, x + radius, y + radius);
 
+    // 還原原始畫筆與畫刷
     SelectObject(hdc, oldPen);
     SelectObject(hdc, oldBrush);
+
     DeleteObject(hPen);
     DeleteObject(hBrush);
     ReleaseDC(NULL, hdc);
@@ -369,7 +367,7 @@ int main() {
         case 3:
             executeCommands();
             break;
-        case 4:     
+        case 4:
             addKeyboard();
             break;
         case 0:
