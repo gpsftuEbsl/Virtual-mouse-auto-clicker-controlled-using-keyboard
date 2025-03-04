@@ -181,18 +181,22 @@ void manualOperation() {
     }
     cout << endl;
     while (true) {
+        // 按鍵狀態更新
         for (auto& key : keys) {
             const bool isPressed = (GetAsyncKeyState(key.keyCode) & 0x8000);
-            if (isPressed && !key.pressed) {
-                key.pressed = true;
-                press(key.x, key.y); // 確認按下按鍵
-            }
-            else if (!isPressed && key.pressed) {
-                key.pressed = false;
-                release(key.x, key.y); // 確認釋放按鍵
+            if (isPressed != key.pressed) {
+                key.newState = isPressed; // 更新新狀態
+
+                if (isPressed) {
+                    press(key.x, key.y); // 模擬按下
+                }
+                else {
+                    release(key.x, key.y); // 模擬放開
+                }
+
+                key.pressed = isPressed; // 更新狀態
             }
         }
-
         drawKeys(keys); // 確認狀態顯示正確
 
         if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) {
