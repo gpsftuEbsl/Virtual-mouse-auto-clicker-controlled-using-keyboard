@@ -1,4 +1,3 @@
-
 #include <windows.h>
 #include <iostream>
 #include <vector>
@@ -118,14 +117,33 @@ void drawKeys(vector<Key> keys) {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
 
-// 模擬按鍵行為
-void press(int x, int y) {
+// 模擬滑鼠行為
+void pressMouse(int x, int y) {
     SetCursorPos(x, y);
     mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
 }
 
-void release(int x, int y) {
+void releaseMouse(int x, int y) {
     mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+}
+
+// 模擬鍵盤行為
+void pressKey(WORD key) {
+    INPUT input = { 0 };
+    input.type = INPUT_KEYBOARD;
+    input.ki.wVk = key;
+
+    // 發送按下鍵的事件
+    SendInput(1, &input, sizeof(INPUT));
+}
+
+void releaseKey(WORD key) {
+    INPUT input = { 0 };
+    input.type = INPUT_KEYBOARD;
+    input.ki.wVk = key;
+    input.ki.dwFlags = KEYEVENTF_KEYUP; //放開鍵的事件
+
+    SendInput(1, &input, sizeof(INPUT));
 }
 
 // 1.錄製指令
@@ -190,10 +208,10 @@ void manualOperation() {
                 key.newState = isPressed; // 更新新狀態
 
                 if (isPressed) {
-                    press(key.x, key.y); // 模擬按下
+                    pressMouse(key.x, key.y); // 模擬按下
                 }
                 else {
-                    release(key.x, key.y); // 模擬放開
+                    releaseMouse(key.x, key.y); // 模擬放開
                 }
 
                 key.pressed = isPressed; // 更新狀態
@@ -230,7 +248,7 @@ void executeCommands() {
     }
 
     cout << "可用的指令檔案：\n";
-    for (size_t i = 0; i < files.size(); ++i) {
+    for (size_t i = 0; i < files.size(); i++) {
         cout << i + 1 << ". " << files[i] << "\n";
     }
 
@@ -263,7 +281,7 @@ void executeCommands() {
             for (auto& k : keys) {
                 if (k.keyCode == key) {
                     k.pressed = true; // 更新按下狀態
-                    press(k.x, k.y);
+                    pressMouse(k.x, k.y);
                     break;
                 }
             }
@@ -280,7 +298,7 @@ void executeCommands() {
             for (auto& k : keys) {
                 if (k.keyCode == key) {
                     k.pressed = false; // 更新釋放狀態
-                    release(k.x, k.y);
+                    releaseMouse(k.x, k.y);
                     break;
                 }
             }
@@ -348,13 +366,64 @@ void addKeyboard(void) {
     cout << "其中vector中有" << keys.size() << "個鍵" << endl;
 }
 
+// 5.模擬按鍵事件
+void executeKeyEventCommands() {
+    Sleep(2000);  // 2秒時間切到目標程式，方便觀察效果
+    while (true) {
+        if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) {
+            break;
+        }
+        // 模擬按下 'W'
+        pressKey('W');
+        Sleep(500);   // 模擬按住 0.5 秒
+        releaseKey('W');
+        if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) {
+            break;
+        }
+        Sleep(500);
+        if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) {
+            break;
+        }
+        // 模擬按下 'A'
+        pressKey('A');
+        Sleep(500);
+        releaseKey('A');
+        if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) {
+            break;
+        }
+        Sleep(500);
+        if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) {
+            break;
+        }
+        // 模擬按下 'S'
+        pressKey('S');
+        Sleep(500);
+        releaseKey('S');
+        if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) {
+            break;
+        }
+        Sleep(500);
+        if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) {
+            break;
+        }
+        // 模擬按下 'D'
+        pressKey('D');
+        Sleep(500);
+        releaseKey('D');
+        if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) {
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
+
 int Key::num = 0; //定義一個用來記錄物件數量的靜態資料成員
 
 // 主程式，選擇模式並能退出程式
 int main() {
     while (true) {
         int mode = 0;
-        cout << "請選擇模式：\n1. 錄製模式\n2. 手動操作模式\n3. 執行已錄製指令模式\n4. 新增自訂義按鍵\n0. 退出程式\n";
+        cout << "請選擇模式：\n1. 錄製模式\n2. 手動操作模式\n3. 執行已錄製指令模式\n4. 新增自訂義按鍵\n5. 模擬按鍵事件\n0. 退出程式\n";
         cin >> mode;
 
         switch (mode) {
@@ -369,6 +438,9 @@ int main() {
             break;
         case 4:
             addKeyboard();
+            break;
+        case 5:
+            executeKeyEventCommands();
             break;
         case 0:
             cout << "退出程式...\n";
