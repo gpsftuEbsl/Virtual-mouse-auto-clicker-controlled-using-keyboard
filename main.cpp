@@ -50,19 +50,19 @@ const int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
 // 使用 std::vector 儲存 Key 物件
 vector<Key> keys = {
-    //{'W', screenWidth * 15 / 64, screenHeight * 5 / 8},
-    //{'S', screenWidth * 15 / 64, screenHeight * 7 / 8},
-    //{'A', screenWidth * 11 / 64, screenHeight * 6 / 8},
-    //{'D', screenWidth * 19 / 64, screenHeight * 6 / 8},
-    {'H', screenWidth * 32 / 64, screenHeight * 4 / 8},
-    {VK_NUMPAD3, screenWidth * 53 / 64, screenHeight * 25 / 32},
-    {VK_NUMPAD2, screenWidth * 11 / 16, screenHeight * 6 / 8},
-    {VK_NUMPAD1, screenWidth * 10 / 16, screenHeight * 6 / 8},
-    {VK_NUMPAD6, screenWidth * 53 / 64, screenHeight * 9 / 16},
+    {'W', int(screenWidth * (double)15 / 64), int(screenHeight * (double)5 / 8)},
+    {'S', int(screenWidth * (double)15 / 64), int(screenHeight * (double)7 / 8)},
+    {'A', int(screenWidth * (double)11 / 64), int(screenHeight * (double)6 / 8)},
+    {'D', int(screenWidth * (double)19 / 64), int(screenHeight * (double)6 / 8)},
+    {'H', int(screenWidth * (double)32 / 64), int(screenHeight * (double)4 / 8)},
+    {VK_NUMPAD3, int(screenWidth * (double)53 / 64), int(screenHeight * (double)25 / 32)},
+    {VK_NUMPAD2, int(screenWidth * (double)11 / 16), int(screenHeight * (double)6 / 8)},
+    {VK_NUMPAD1, int(screenWidth * (double)10 / 16), int(screenHeight * (double)6 / 8)},
+    {VK_NUMPAD6, int(screenWidth * (double)53 / 64), int(screenHeight * (double)9 / 16)},
 };
 
 // 畫出圓形標記與鍵盤字母
-void drawCircle(int x, int y, int radius = 10, COLORREF color = RGB(255, 0, 0)) {
+void drawCircle(int x, int y, int radius, COLORREF color) {
     HDC hdc = GetDC(NULL);
     HPEN hPen = CreatePen(PS_SOLID, 2, color);
     HBRUSH hBrush = CreateSolidBrush(color);
@@ -93,7 +93,6 @@ void drawKeys(vector<Key> keys) {
             static_cast<int>(key.x * stretchFactorX + circleOffsetX),
             static_cast<int>(key.y * stretchFactorY + circleOffsetY),
             circleSize, key.pressed ? RGB(100, 100, 200) : RGB(230, 230, 250));
-
         // 根據 keyCode 來構造按鍵文字
         string keyText = "";
         if (key.keyCode == VK_NUMPAD1) keyText = "1";
@@ -174,9 +173,9 @@ void recordCommands() {
     cout << "指令已儲存至 " << fileName << "\n";
 }
 
-//2.手動操作
+// 2.手動操作
 void manualOperation() {
-    cout << "可手動操作有以下這些鍵..." << endl;
+    cout << "可手動操作的有以下這些鍵..." << endl;
     for (auto& key : keys) {
         cout << key.keyCode << ' ';
     }
@@ -283,15 +282,37 @@ void executeCommands() {
     }
 }
 
-//4.新增鍵盤
+// 4.新增鍵盤
 void addKeyboard(void) {
     char inputName;
     string fraction, nStr; //fractionHeightAndWidth
     int a = -1, b = -1, c = -1, d = -1; // *a/b *c/d 從字串中取得數字
-    cout << "請輸入要添加的鍵盤按鍵名稱、在螢幕中的高度、寬度 例如:(W)" << endl;
-    cin >> inputName; cin.get();
-    cout << "請輸入要添加的鍵盤按鍵在螢幕中的高度、寬度 例如:(15/64 5/8)" << endl;
-    getline(cin, fraction);
+    do {
+        cout << "請輸入要添加的鍵盤按鍵名稱、在螢幕中的寬度、高度 例如:(W)" << endl;
+        cin >> inputName; cin.get();
+        if (!isupper(inputName)) {
+            cout << "請輸入A~Z大寫英文字母" << endl;
+        }
+        else {
+            break;
+        }
+    } while (true);
+    do {
+        cout << "請輸入要添加的鍵盤按鍵在螢幕中的寬度、高度 例如:(15/64 20/32)(1/64約為一公分寬 1/32約為一公分寬)" << endl;
+        getline(cin, fraction);
+        int cntLine = 0, cntSpace = 0;
+        for (int i = 0; i < fraction.size(); i++) {
+            if (fraction[i] == '/') {
+                cntLine++;
+            }
+            if (fraction[i] == ' ') {
+                cntSpace++;
+            }
+        }
+        if (cntLine == 2 && cntSpace == 1) {
+
+        }
+    } while (true);
     int strSize = fraction.size(), cnt = 0, head = 0;
     for (int i = 0; i < strSize; i++) {
         if (fraction[i] == '/' || fraction[i] == ' ') {
@@ -315,13 +336,14 @@ void addKeyboard(void) {
     }
     nStr = fraction.substr(head, cnt); //額外處理最後的d
     d = stoi(nStr);
-    Key userDefine(inputName, screenHeight * a / b, screenWidth * c / d);
+    Key userDefine(inputName, int(screenWidth * (double)a / b), int(screenHeight * (double)c / d));
     keys.push_back(userDefine);
     Key::showNum(); //用來計算Key物件總數
     cout << "其中vector中有" << keys.size() << "個鍵" << endl;
 }
 
 int Key::num = 0; //定義一個用來記錄物件數量的靜態資料成員
+
 // 主程式，選擇模式並能退出程式
 int main() {
     while (true) {
