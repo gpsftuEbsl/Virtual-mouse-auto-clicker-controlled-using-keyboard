@@ -178,7 +178,7 @@ void recordCommands() {
             break;
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10)); //降低CPU負載
     }
 
     // 將指令存入檔案
@@ -413,7 +413,7 @@ void executeKeyEventCommands() {
         if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) {
             break;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        //因為已經Sleep(500);所以不用加std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
 
