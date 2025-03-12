@@ -1,4 +1,4 @@
-// Copyright (C) 2025 user ray
+// Copyright (C) 2025 Terry
 // This file is part of a project licensed under the GNU General Public License v3.0.
 // See the LICENSE file for more details.
 #include <windows.h>
