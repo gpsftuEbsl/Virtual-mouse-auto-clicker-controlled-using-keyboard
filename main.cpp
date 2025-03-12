@@ -1,3 +1,4 @@
+
 #include <windows.h>
 #include <iostream>
 #include <vector>
@@ -22,19 +23,24 @@ public:
         num++;
     }
 
-    //拷貝建構元 引數必須為某物件的參照
     Key(const Key& key) {
         keyCode = key.keyCode;
         x = key.x;
         y = key.y;
         num++;
     }
-
+    ~Key() {
+        num--;
+        cout << "Key物件被銷毀，目前剩餘 " << num << " 個Key物件" << endl;
+    }
     //用來存取private靜態資料成員num
     static void showNum(void) {
         cout << "目前共有" << Key::num << "個Key物件" << endl;
     }
 };
+
+// 設定一個全域變數來指示是否繼續顯示滑鼠位置
+atomic<bool> keepShowing(true);
 
 // 常數定義
 const int circleSize = 20; // 固定圓形的大小
@@ -50,15 +56,15 @@ const int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
 // 使用 std::vector 儲存 Key 物件
 vector<Key> keys = {
-    {'W', int(screenWidth * (double)15 / 64), int(screenHeight * (double)5 / 8)},
-    {'S', int(screenWidth * (double)15 / 64), int(screenHeight * (double)7 / 8)},
-    {'A', int(screenWidth * (double)11 / 64), int(screenHeight * (double)6 / 8)},
-    {'D', int(screenWidth * (double)19 / 64), int(screenHeight * (double)6 / 8)},
-    {'H', int(screenWidth * (double)32 / 64), int(screenHeight * (double)4 / 8)},
+    {'W', 358, 538},
+    {'S', 358, 755},
+    {'A', 265, 647},
+    {'D', 456, 648}
+    /*, {'H', int(screenWidth * (double)32 / 64), int(screenHeight * (double)4 / 8)},
     {VK_NUMPAD3, int(screenWidth * (double)53 / 64), int(screenHeight * (double)25 / 32)},
     {VK_NUMPAD2, int(screenWidth * (double)11 / 16), int(screenHeight * (double)6 / 8)},
     {VK_NUMPAD1, int(screenWidth * (double)10 / 16), int(screenHeight * (double)6 / 8)},
-    {VK_NUMPAD6, int(screenWidth * (double)53 / 64), int(screenHeight * (double)9 / 16)},
+    {VK_NUMPAD6, int(screenWidth * (double)53 / 64), int(screenHeight * (double)9 / 16)},*/
 };
 
 // 畫出圓形標記與鍵盤字母
@@ -306,61 +312,38 @@ void executeCommands() {
     }
 }
 
-// 4.新增鍵盤
+// 4.新增鍵盤(多載)
 void addKeyboard(void) {
-    char inputName;
-    string fraction, nStr; //fractionHeightAndWidth
-    int a = -1, b = -1, c = -1, d = -1; // *a/b *c/d 從字串中取得數字
+    char key_alpha; //用來存按鍵英文字母
+    int x, y;
     do {
-        cout << "請輸入要添加的鍵盤按鍵名稱、在螢幕中的寬度、高度 例如:(W)" << endl;
-        cin >> inputName; cin.get();
-        if (!isupper(inputName)) {
+        cout << "請輸入要添加的鍵盤按鍵名稱和座標，例如:(W 100 100)" << endl;
+        cin >> key_alpha >> x >> y;
+        if (isupper(key_alpha) && x > 0 && x < 1535 && y > 0 && y < 863 ) {
+            break; //成功輸入 跳離迴圈
+        }
+        else {
+            cout << "格式錯誤input error" << endl;
+        }
+    } while (true);
+    Key userDefine(key_alpha, x, y);
+    keys.push_back(userDefine);
+    Key::showNum(); //用來計算Key物件總數
+    cout << "其中vector中有" << keys.size() << "個鍵" << endl;
+}
+void addKeyboard(int x, int y) {
+    char key_alpha; //用來存按鍵英文字母
+    do {
+        cout << "請輸入要添加的鍵盤按鍵名稱，例如:(W)" << endl;
+        cin >> key_alpha;
+        if (!isupper(key_alpha)) {
             cout << "請輸入A~Z大寫英文字母" << endl;
         }
         else {
             break;
         }
     } while (true);
-    do {
-        cout << "請輸入要添加的鍵盤按鍵在螢幕中的寬度、高度 例如:(15/64 20/32)(1/64約為一公分寬 1/32約為一公分寬)" << endl;
-        getline(cin, fraction);
-        int cntLine = 0, cntSpace = 0;
-        for (int i = 0; i < fraction.size(); i++) {
-            if (fraction[i] == '/') {
-                cntLine++;
-            }
-            if (fraction[i] == ' ') {
-                cntSpace++;
-            }
-        }
-        if (cntLine == 2 && cntSpace == 1) {
-
-        }
-    } while (true);
-    int strSize = fraction.size(), cnt = 0, head = 0;
-    for (int i = 0; i < strSize; i++) {
-        if (fraction[i] == '/' || fraction[i] == ' ') {
-            nStr = fraction.substr(head, cnt);
-            int n = stoi(nStr);
-            head = i + 1;
-            cnt = 0;
-            if (a == -1) {
-                a = n;
-            }
-            else if (b == -1) {
-                b = n;
-            }
-            else if (c == -1) {
-                c = n;
-            }
-        }
-        else {
-            cnt++;
-        }
-    }
-    nStr = fraction.substr(head, cnt); //額外處理最後的d
-    d = stoi(nStr);
-    Key userDefine(inputName, int(screenWidth * (double)a / b), int(screenHeight * (double)c / d));
+    Key userDefine(key_alpha, x, y);
     keys.push_back(userDefine);
     Key::showNum(); //用來計算Key物件總數
     cout << "其中vector中有" << keys.size() << "個鍵" << endl;
@@ -368,6 +351,11 @@ void addKeyboard(void) {
 
 // 5.模擬按鍵事件
 void executeKeyEventCommands() {
+    ifstream ifile;
+    string s;
+    while (getline(ifile, s)) {
+
+    }
     Sleep(2000);  // 2秒時間切到目標程式，方便觀察效果
     while (true) {
         if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) {
@@ -417,13 +405,47 @@ void executeKeyEventCommands() {
     }
 }
 
+// 6. 顯示鼠標座標的函數
+void showCursorPosition() {
+    bool is_printed = 0; //紀錄打印座標
+    char ans; //是否要加入新鍵盤
+    POINT p;
+    while (true) {
+        if (GetCursorPos(&p) && !is_printed) {
+            // 顯示滑鼠座標
+            cout << "Mouse position: (" << p.x << ", " << p.y << ")" << endl;
+            is_printed = true;
+            do {
+                cout << "do you want to add a new key?(y/n)" << endl;
+                cin >> ans;
+                if (ans == 'y' || ans == 'Y' || ans == 'n' || ans == 'N') {
+                    break;
+                }
+                else {
+                    cout << "input error! please input again..." << endl;
+                }
+            } while (true);
+            if (ans == 'Y' || ans == 'y') {
+                addKeyboard(p.x, p.y); //呼叫addKeyboard(int, int)的函數
+            }
+            else if (ans == 'N' || ans == 'n') {
+                cout << "press ESC to continue..." << endl;
+            }
+        }
+        else if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) {
+            break;
+        }
+    }
+    system("cls"); //清除畫面
+}
+
 int Key::num = 0; //定義一個用來記錄物件數量的靜態資料成員
 
 // 主程式，選擇模式並能退出程式
 int main() {
     while (true) {
         int mode = 0;
-        cout << "請選擇模式：\n1. 錄製模式\n2. 手動操作模式\n3. 執行已錄製指令模式\n4. 新增自訂義按鍵\n5. 模擬按鍵事件\n0. 退出程式\n";
+        cout << "請選擇模式：\n1. 錄製模式\n2. 手動操作模式\n3. 執行已錄製的事件\n4. 新增自訂義按鍵\n5. 模擬按鍵事件\n6. 顯示屬標座標\n0. 退出程式\n";
         cin >> mode;
 
         switch (mode) {
@@ -442,6 +464,9 @@ int main() {
         case 5:
             executeKeyEventCommands();
             break;
+        case 6:
+            showCursorPosition();
+            break;
         case 0:
             cout << "退出程式...\n";
             return 0;
@@ -449,4 +474,6 @@ int main() {
             cout << "無效選項。\n";
         }
     }
+
+    return 0;
 }
