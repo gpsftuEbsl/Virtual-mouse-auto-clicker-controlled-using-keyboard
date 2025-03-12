@@ -99,7 +99,7 @@ This is a tool designed for recording and executing keyboard key presses. Users 
 
 This project is intended for academic and personal learning purposes only. The author assumes no liability for any loss, damage, or legal issues that may arise from using this program. Please comply with local laws and regulations, and ensure that you do not infringe on others' rights while using this tool.
 
-### License
-
-Please refer to the **LICENSE** file for the terms of use for this program.
+## License
+This project is licensed under the GNU General Public License v3.0.  
+See the [LICENSE](./LICENSE) file for details.
 
