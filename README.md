@@ -69,22 +69,35 @@ This is a tool designed for recording and executing keyboard key presses. Users 
 ### Features
 
 1. **Recording Mode**:
-   - In this mode, the program records key press and release timestamps and saves them into a file.
+   - In this mode, the program records the timestamps of key press and release events and saves them as a file.
 2. **Manual Operation Mode**:
-   - Users can manually operate the keyboard and visually observe the current key states.
+   - Users can directly operate the keyboard and visually see the current key status.
 3. **Execute Command Mode**:
-   - Users can select a saved command file and execute it, simulating the keyboard behavior.
+   - Users can select recorded command files and execute them to simulate keyboard behavior.
+4. **Add Key**:
+   - Directly input the key name and its coordinates to add a new key.
+   - Alternatively, display the mouse position and add a key at that position (requires Feature 6).
+5. **Simulate Key Press Event**:
+   - Unlike Recording Mode, which simulates mouse clicks at specific screen coordinates, this feature directly simulates default keyboard input events.
+6. **Display Current Mouse Position**:
+   - Move the mouse to the desired position and select Feature 6 in the terminal to display its coordinates.
+   - After displaying the position, the program will ask if you want to add a key at that location. Selecting 'y' will set a corresponding keyboard input at that position.
 
 ### How to Use
 
-1. After starting the program, choose an operation mode:
-   - **Recording Mode**: Record keyboard commands and save them as a file.
-   - **Manual Operation Mode**: Manually operate the keyboard and view the key states.
-   - **Execute Command Mode**: Select a saved command file and execute it.
+1. After launching the program, choose an operation mode:
+   - Recording Mode: Record keyboard commands and save them as a file.
+   - Manual Operation Mode: Operate the keyboard manually and display its status.
+   - Execute Command Mode: Select and execute saved command files.
+   - Add Key Mode: Directly input the key name and coordinates, or use Feature 6 to display mouse coordinates and choose to add a key.
+   - Simulate Key Press Event Mode: Directly simulate keyboard input events instead of using mouse coordinates.
+   - Display Mouse Position Mode: Show current mouse coordinates and optionally add a key at that position.
 
-2. Follow the prompts to perform the selected operation, and the program will simulate the key press and release actions based on the timestamps.
+2. Follow the on-screen prompts to choose an operation. The program will execute based on the user’s selection.
 
-3. In the execution mode, commands are executed with precision based on the timestamps, simulating key presses and releases.
+3. In Execute Command Mode, the program accurately simulates key press and release events based on recorded timestamps.
+
+4. When adding a key, if you choose to display the mouse position, first move the mouse to the target position, then execute Feature 6. After displaying the coordinates, you can choose whether to immediately add a key at that location.
 
 ### Compilation and Running
 
